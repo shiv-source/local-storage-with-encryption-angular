@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import * as CryptoJS from 'crypto-js';
+var CryptoJS = require("crypto-js");
 
 @Component({
   selector: 'app-form',
@@ -12,6 +13,8 @@ export class FormComponent implements OnInit {
   submitted = false;
   savedvalue: any;
   dataarray:any = [];
+  getlocalstoragedata:string[];
+  displaydata: string;
 
   constructor(private formBuilder: FormBuilder) {}
 
@@ -28,10 +31,12 @@ get f() {
        return this.registerForm.controls;
       }
       encryptdata(newname ,newmeetingDate,newmeetingStartTime ,newmeetingEndTime){
+        let key = 'key';
         this.savedvalue = CryptoJS.AES.encrypt(newname.trim(),
         newmeetingStartTime.trim(),
         newmeetingEndTime.trim(),
-        newmeetingDate.trim()).toString();
+        newmeetingDate.trim(),key).toString();
+        console.log(this.savedvalue);
         this.dataarray.push(this.savedvalue);
         localStorage.setItem('data',JSON.stringify(this.dataarray));
         console.log(this.dataarray);
@@ -55,5 +60,14 @@ onSubmit() {
     this.registerForm.value.meetingDate = '';
     this.registerForm.value.meetingEndTime = '';
     this.registerForm.value.meetingStartTime = '';
+  }
+  decryptdata(){
+    let key = 'key'
+    this.displaydata = JSON.parse(localStorage.getItem('data'));
+    console.log(typeof this.displaydata[0]);
+    let rawvalue = 'U2FsdGVkX1+tAM1i1tukL1ckuk1i0t78zTuH599QJcc=';
+    //let rawvalue =this.displaydata[0];
+    this.getlocalstoragedata = CryptoJS.AES.decrypt(rawvalue,key).words.toString(CryptoJS.enc.Utf8);
+    console.log(this.getlocalstoragedata);
   }
 }
